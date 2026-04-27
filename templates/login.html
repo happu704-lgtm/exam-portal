@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Login - Digital Quiz Tool{% endblock %}
+{% block body_class %}login-page{% endblock %}
+
+{% block body %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-brand">
+            <div class="brand-icon">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h1>Digital Quiz Tool</h1>
+            <p>Academic Authority</p>
+        </div>
+
+        <!-- Role Tabs -->
+        <div class="login-tabs">
+            <button class="login-tab active" data-role="student" onclick="switchRole('student', this)">
+                <i class="fas fa-user-graduate"></i> Student
+            </button>
+            <button class="login-tab" data-role="admin" onclick="switchRole('admin', this)">
+                <i class="fas fa-user-shield"></i> Admin
+            </button>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.login') }}" id="loginForm">
+            <input type="hidden" name="role" id="roleInput" value="student">
+
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" class="form-input" placeholder="Enter your username"
+                    required autocomplete="username" autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-input"
+                    placeholder="Enter your password" required autocomplete="current-password">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg" id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i> <span id="loginBtnText">Sign In as Student</span>
+            </button>
+        </form>
+
+        <div class="login-footer" id="registerLink">
+            Don't have an account? <a href="{{ url_for('auth.register') }}">Register here</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .login-tabs {
+        display: flex;
+        gap: 0;
+        margin-bottom: 28px;
+        background: var(--bg-body);
+        border-radius: var(--radius-sm);
+        padding: 4px;
+    }
+
+    .login-tab {
+        flex: 1;
+        padding: 12px 16px;
+        border: none;
+        background: transparent;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .login-tab.active {
+        background: var(--accent);
+        color: white;
+        box-shadow: 0 2px 8px rgba(26, 86, 219, 0.3);
+    }
+
+    .login-tab:not(.active):hover {
+        background: rgba(26, 86, 219, 0.08);
+        color: var(--accent);
+    }
+</style>
+
+<script>
+    function switchRole(role, btn) {
+        document.getElementById('roleInput').value = role;
+        document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+
+        const btnText = document.getElementById('loginBtnText');
+        const regLink = document.getElementById('registerLink');
+
+        if (role === 'admin') {
+            btnText.textContent = 'Sign In as Admin';
+            regLink.style.display = 'none';
+        } else {
+            btnText.textContent = 'Sign In as Student';
+            regLink.style.display = 'block';
+        }
+    }
+</script>
+{% endblock %}

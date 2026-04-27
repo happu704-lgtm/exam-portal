@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}{% if exam %}Edit Exam{% else %}Create Exam{% endif %} - Admin{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Admin Panel</h2>
+            <p>Management Console</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin.dashboard') }}" class="nav-link"><i class="fas fa-tachometer-alt"></i>
+                Dashboard</a>
+            <a href="{{ url_for('admin.exams') }}" class="nav-link active"><i class="fas fa-file-alt"></i> Exams</a>
+            <a href="{{ url_for('admin.students') }}" class="nav-link"><i class="fas fa-users"></i> Students</a>
+            <a href="{{ url_for('admin.reports') }}" class="nav-link"><i class="fas fa-chart-pie"></i> Reports</a>
+        </nav>
+        <div class="sidebar-user">
+            <div class="user-avatar" style="background: linear-gradient(135deg, #dc2626, #991b1b);">{{
+                current_user.full_name[:2]|upper }}</div>
+            <div class="user-info">
+                <h4>{{ current_user.full_name }}</h4>
+                <p>Administrator</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topnav">
+            <div class="flex items-center gap-3">
+                <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                <span class="topnav-brand">Digital Quiz Tool</span>
+            </div>
+            <div class="topnav-links">
+                <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('admin.exams') }}" class="active">Exams</a>
+                <a href="{{ url_for('admin.students') }}">Students</a>
+                <a href="{{ url_for('admin.reports') }}">Reports</a>
+            </div>
+            <div class="topnav-actions">
+                <a href="{{ url_for('auth.logout') }}" class="icon-btn" title="Logout"><i
+                        class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="page-header">
+                <h1>{% if exam %}Edit Exam{% else %}Create New Exam{% endif %}</h1>
+                <p>{% if exam %}Update exam details.{% else %}Fill in the details to create a new examination.{% endif
+                    %}</p>
+            </div>
+
+            <div class="form-card mt-6">
+                <form method="POST">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="title">Exam Title</label>
+                            <input type="text" id="title" name="title" class="form-input"
+                                value="{{ exam['title'] if exam else '' }}" required
+                                placeholder="e.g. Advanced Theoretical Physics">
+                        </div>
+                        <div class="form-group">
+                            <label for="department">Department</label>
+                            <input type="text" id="department" name="department" class="form-input"
+                                value="{{ exam['department'] if exam else '' }}" required
+                                placeholder="e.g. SCIENCE DEPARTMENT">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description"
+                            placeholder="Describe what this exam covers...">{{ exam['description'] if exam else '' }}</textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="duration_minutes">Duration (minutes)</label>
+                            <input type="number" id="duration_minutes" name="duration_minutes" class="form-input"
+                                value="{{ exam['duration_minutes'] if exam else 60 }}" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="exam_type">Exam Type</label>
+                            <select id="exam_type" name="exam_type">
+                                <option value="MCQ" {% if exam and exam['exam_type']=='MCQ' %}selected{% endif %}>
+                                    Multiple Choice (MCQ)</option>
+                                <option value="Mixed" {% if exam and exam['exam_type']=='Mixed' %}selected{% endif %}>
+                                    Mixed</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="deadline">Deadline</label>
+                            <input type="text" id="deadline" name="deadline" class="form-input"
+                                value="{{ exam['deadline'] if exam else '' }}" placeholder="e.g. April 15, 2026">
+                        </div>
+                        <div class="form-group">
+                            <label for="notes">Notes / Warnings</label>
+                            <input type="text" id="notes" name="notes" class="form-input"
+                                value="{{ exam['notes'] if exam else '' }}" placeholder="e.g. Timer starts upon entry">
+                        </div>
+                    </div>
+
+                    {% if exam %}
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="is_active" {% if exam['is_active'] %}checked{% endif %}>
+                            Active (visible to students)
+                        </label>
+                    </div>
+                    {% endif %}
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save"></i> {% if exam %}Update Exam{% else %}Create Exam{% endif %}
+                        </button>
+                        <a href="{{ url_for('admin.exams') }}" class="btn btn-outline btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}Study Materials - Digital Quiz Tool{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Exam Portal</h2>
+            <p>Academic Authority</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('student.dashboard') }}" class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a>
+            <a href="{{ url_for('student.dashboard') }}" class="nav-link"><i class="fas fa-file-alt"></i> Active
+                Exams</a>
+            <a href="{{ url_for('student.results') }}" class="nav-link"><i class="fas fa-chart-bar"></i> Past
+                Results</a>
+            <a href="{{ url_for('student.analytics') }}" class="nav-link"><i class="fas fa-chart-line"></i> My
+                Analytics</a>
+            <a href="{{ url_for('student.study_materials') }}" class="nav-link active"><i class="fas fa-book-open"></i>
+                Study Materials</a>
+            <a href="#" class="nav-link"><i class="fas fa-headset"></i> Support</a>
+        </nav>
+        <div class="sidebar-user">
+            <div class="user-avatar">{{ current_user.full_name[:2]|upper }}</div>
+            <div class="user-info">
+                <h4>{{ current_user.full_name }}</h4>
+                <p>Student ID: {{ current_user.student_id }}</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topnav">
+            <div class="flex items-center gap-3">
+                <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                <span class="topnav-brand">Digital Quiz Tool</span>
+            </div>
+            <div class="topnav-links">
+                <a href="{{ url_for('student.dashboard') }}">Exams</a>
+                <a href="{{ url_for('student.results') }}">Results</a>
+                <a href="{{ url_for('student.analytics') }}">Analytics</a>
+                <a href="{{ url_for('student.study_materials') }}" class="active">Study Materials</a>
+            </div>
+            <div class="topnav-actions">
+                <a href="{{ url_for('auth.logout') }}" class="icon-btn" title="Logout"><i
+                        class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="page-header">
+                <h1>Study Materials</h1>
+                <p>Access study materials across all courses to prepare for your examinations.</p>
+            </div>
+
+            <!-- Course Filter -->
+            <div class="search-filter-bar">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="materialSearch" placeholder="Search materials..."
+                        oninput="filterMaterials(this.value)">
+                </div>
+                <a href="{{ url_for('student.study_materials') }}"
+                    class="filter-btn {% if not current_course %}active{% endif %}">
+                    All Courses
+                </a>
+                {% for c in courses %}
+                <a href="{{ url_for('student.study_materials', course=c['course']) }}"
+                    class="filter-btn {% if current_course == c['course'] %}active{% endif %}">
+                    {{ c['course'] }}
+                </a>
+                {% endfor %}
+            </div>
+
+            <!-- Materials Grid -->
+            {% if materials %}
+            <div class="exam-grid mt-4">
+                {% for m in materials %}
+                <div class="exam-card material-card">
+                    <div class="exam-card-image" style="height: 120px;">
+                        {% if m['material_type'] == 'video' %}
+                        <div class="placeholder-img" style="background: linear-gradient(135deg, #7c3aed, #4f46e5);"><i
+                                class="fas fa-video" style="font-size: 36px;"></i></div>
+                        {% elif m['material_type'] == 'notes' %}
+                        <div class="placeholder-img" style="background: linear-gradient(135deg, #059669, #047857);"><i
+                                class="fas fa-sticky-note" style="font-size: 36px;"></i></div>
+                        {% elif m['material_type'] == 'presentation' %}
+                        <div class="placeholder-img" style="background: linear-gradient(135deg, #d97706, #b45309);"><i
+                                class="fas fa-file-powerpoint" style="font-size: 36px;"></i></div>
+                        {% else %}
+                        <div class="placeholder-img" style="background: linear-gradient(135deg, #1a56db, #1e40af);"><i
+                                class="fas fa-file-alt" style="font-size: 36px;"></i></div>
+                        {% endif %}
+                        <span class="exam-card-badge">{{ m['course'] }}</span>
+                    </div>
+                    <div class="exam-card-body">
+                        <h3>{{ m['title'] }}</h3>
+                        <div class="exam-meta">
+                            <div class="exam-meta-item">
+                                <i class="fas fa-tag"></i>
+                                <span>{{ m['material_type']|capitalize }}</span>
+                            </div>
+                            {% if m['author_name'] %}
+                            <div class="exam-meta-item">
+                                <i class="fas fa-user"></i>
+                                <span>By {{ m['author_name'] }}</span>
+                            </div>
+                            {% endif %}
+                            <div class="exam-meta-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>{{ m['created_at'][:10] if m['created_at'] else '' }}</span>
+                            </div>
+                        </div>
+                        {% if m['description'] %}
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 8px; line-height: 1.5;">
+                            {{ m['description'][:120] }}{{ '...' if m['description']|length > 120 }}
+                        </p>
+                        {% endif %}
+                    </div>
+                    <div class="exam-card-footer">
+                        <a href="{{ url_for('student.view_material', material_id=m['id']) }}" class="btn-start">
+                            <i class="fas fa-book-reader"></i> Read Material
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state mt-6">
+                <i class="fas fa-book"></i>
+                <h3>No Study Materials</h3>
+                <p>{% if current_course %}No materials found for "{{ current_course }}". Try another course.{% else
+                    %}Study materials will appear here once added by your instructors.{% endif %}</p>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+
+<script>
+    function filterMaterials(query) {
+        query = query.toLowerCase();
+        document.querySelectorAll('.material-card').forEach(card => {
+            const title = card.querySelector('h3')?.textContent.toLowerCase() || '';
+            const course = card.querySelector('.exam-card-badge')?.textContent.toLowerCase() || '';
+            card.style.display = (title.includes(query) || course.includes(query)) ? '' : 'none';
+        });
+    }
+</script>
+{% endblock %}

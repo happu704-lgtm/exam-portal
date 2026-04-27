@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Reports - Admin{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Admin Panel</h2>
+            <p>Management Console</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin.dashboard') }}" class="nav-link"><i class="fas fa-tachometer-alt"></i>
+                Dashboard</a>
+            <a href="{{ url_for('admin.exams') }}" class="nav-link"><i class="fas fa-file-alt"></i> Exams</a>
+            <a href="{{ url_for('admin.students') }}" class="nav-link"><i class="fas fa-users"></i> Students</a>
+            <a href="{{ url_for('admin.reports') }}" class="nav-link active"><i class="fas fa-chart-pie"></i>
+                Reports</a>
+        </nav>
+        <div class="sidebar-user">
+            <div class="user-avatar" style="background: linear-gradient(135deg, #dc2626, #991b1b);">{{
+                current_user.full_name[:2]|upper }}</div>
+            <div class="user-info">
+                <h4>{{ current_user.full_name }}</h4>
+                <p>Administrator</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topnav">
+            <div class="flex items-center gap-3">
+                <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                <span class="topnav-brand">Digital Quiz Tool</span>
+            </div>
+            <div class="topnav-links">
+                <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('admin.exams') }}">Exams</a>
+                <a href="{{ url_for('admin.students') }}">Students</a>
+                <a href="{{ url_for('admin.reports') }}" class="active">Reports</a>
+            </div>
+            <div class="topnav-actions">
+                <a href="{{ url_for('auth.logout') }}" class="icon-btn" title="Logout"><i
+                        class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="page-header">
+                <h1>Result Analysis & Reports</h1>
+                <p>Exam-wise performance analytics including pass/fail rates and score distributions.</p>
+            </div>
+
+            {% if reports %}
+            <div class="results-table-container mt-6">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Exam</th>
+                            <th>Department</th>
+                            <th>Attempts</th>
+                            <th>Avg Score</th>
+                            <th>Highest</th>
+                            <th>Lowest</th>
+                            <th>Passed</th>
+                            <th>Failed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in reports %}
+                        <tr>
+                            <td><strong>{{ r['title'] }}</strong></td>
+                            <td><span class="badge badge-dept">{{ r['department'] }}</span></td>
+                            <td>{{ r['attempts'] }}</td>
+                            <td>
+                                <span class="grade-badge {{ r['avg_score']|grade_color }}">
+                                    {{ r['avg_score'] }}%
+                                </span>
+                            </td>
+                            <td>{{ r['max_score'] }}%</td>
+                            <td>{{ r['min_score'] }}%</td>
+                            <td><span class="badge badge-active">{{ r['passed'] or 0 }}</span></td>
+                            <td><span class="badge badge-inactive">{{ r['failed'] or 0 }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state mt-6">
+                <i class="fas fa-chart-bar"></i>
+                <h3>No Reports Available</h3>
+                <p>Reports will appear here once students start completing exams.</p>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+{% endblock %}

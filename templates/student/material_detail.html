@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}{{ material['title'] }} - Study Materials{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Exam Portal</h2>
+            <p>Academic Authority</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('student.dashboard') }}" class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a>
+            <a href="{{ url_for('student.dashboard') }}" class="nav-link"><i class="fas fa-file-alt"></i> Active
+                Exams</a>
+            <a href="{{ url_for('student.results') }}" class="nav-link"><i class="fas fa-chart-bar"></i> Past
+                Results</a>
+            <a href="{{ url_for('student.analytics') }}" class="nav-link"><i class="fas fa-chart-line"></i> My
+                Analytics</a>
+            <a href="{{ url_for('student.study_materials') }}" class="nav-link active"><i class="fas fa-book-open"></i>
+                Study Materials</a>
+            <a href="#" class="nav-link"><i class="fas fa-headset"></i> Support</a>
+        </nav>
+        <div class="sidebar-user">
+            <div class="user-avatar">{{ current_user.full_name[:2]|upper }}</div>
+            <div class="user-info">
+                <h4>{{ current_user.full_name }}</h4>
+                <p>Student ID: {{ current_user.student_id }}</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topnav">
+            <div class="flex items-center gap-3">
+                <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                <span class="topnav-brand">Digital Quiz Tool</span>
+            </div>
+            <div class="topnav-links">
+                <a href="{{ url_for('student.dashboard') }}">Exams</a>
+                <a href="{{ url_for('student.results') }}">Results</a>
+                <a href="{{ url_for('student.analytics') }}">Analytics</a>
+                <a href="{{ url_for('student.study_materials') }}" class="active">Study Materials</a>
+            </div>
+            <div class="topnav-actions">
+                <a href="{{ url_for('auth.logout') }}" class="icon-btn" title="Logout"><i
+                        class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="table-header">
+                <div class="page-header">
+                    <h1>{{ material['title'] }}</h1>
+                    <p>
+                        <span class="badge badge-dept">{{ material['course'] }}</span>
+                        <span style="margin-left: 8px; color: var(--text-secondary);">{{
+                            material['material_type']|capitalize }}</span>
+                        {% if material['author_name'] %}
+                        <span style="margin-left: 8px; color: var(--text-secondary);">• By {{ material['author_name']
+                            }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <a href="{{ url_for('student.study_materials') }}" class="btn btn-outline btn-sm">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </div>
+
+            <div class="form-card mt-6">
+                {% if material['description'] %}
+                <div style="margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border);">
+                    <h3
+                        style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 8px;">
+                        Description</h3>
+                    <p style="font-size: 15px; line-height: 1.7; color: var(--text-primary);">{{ material['description']
+                        }}</p>
+                </div>
+                {% endif %}
+
+                {% if material['content'] %}
+                <div>
+                    <h3
+                        style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 12px;">
+                        Content</h3>
+                    <div style="font-size: 15px; line-height: 1.8; color: var(--text-primary); white-space: pre-wrap;">
+                        {{ material['content'] }}</div>
+                </div>
+                {% endif %}
+
+                {% if material['file_url'] %}
+                <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border);">
+                    <a href="{{ material['file_url'] }}" class="btn btn-primary" target="_blank">
+                        <i class="fas fa-download"></i> Download / Open Resource
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

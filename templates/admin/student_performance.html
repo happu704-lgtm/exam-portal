@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}{{ student['full_name'] }} Performance - Admin{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Admin Panel</h2>
+            <p>Management Console</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin.dashboard') }}" class="nav-link"><i class="fas fa-tachometer-alt"></i>
+                Dashboard</a>
+            <a href="{{ url_for('admin.exams') }}" class="nav-link"><i class="fas fa-file-alt"></i> Exams</a>
+            <a href="{{ url_for('admin.students') }}" class="nav-link active"><i class="fas fa-users"></i> Students</a>
+            <a href="{{ url_for('admin.reports') }}" class="nav-link"><i class="fas fa-chart-pie"></i> Reports</a>
+            <a href="{{ url_for('admin.study_materials') }}" class="nav-link"><i class="fas fa-book-open"></i> Study
+                Materials</a>
+        </nav>
+        <div class="sidebar-user">
+            <div class="user-avatar" style="background: linear-gradient(135deg, #dc2626, #991b1b);">{{
+                current_user.full_name[:2]|upper }}</div>
+            <div class="user-info">
+                <h4>{{ current_user.full_name }}</h4>
+                <p>Administrator</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topnav">
+            <div class="flex items-center gap-3">
+                <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                <span class="topnav-brand">Digital Quiz Tool</span>
+            </div>
+            <div class="topnav-links">
+                <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('admin.exams') }}">Exams</a>
+                <a href="{{ url_for('admin.students') }}" class="active">Students</a>
+                <a href="{{ url_for('admin.reports') }}">Reports</a>
+                <a href="{{ url_for('admin.study_materials') }}">Materials</a>
+            </div>
+            <div class="topnav-actions">
+                <a href="{{ url_for('auth.logout') }}" class="icon-btn" title="Logout"><i
+                        class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="table-header">
+                <div class="page-header">
+                    <h1>{{ student['full_name'] }}</h1>
+                    <p>Student ID: {{ student['student_id'] or 'N/A' }} | {{ student['email'] or '' }} | Performance
+                        analysis across all courses</p>
+                </div>
+                <a href="{{ url_for('admin.students') }}" class="btn btn-outline btn-sm">
+                    <i class="fas fa-arrow-left"></i> All Students
+                </a>
+            </div>
+
+            <!-- Overall Stats -->
+            <div class="stats-grid mt-6">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-clipboard-check"></i></div>
+                    <div class="stat-value">{{ overall['total_exams'] }}</div>
+                    <div class="stat-label">Exams Taken</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-percentage"></i></div>
+                    <div class="stat-value">{{ overall['avg_score'] }}%</div>
+                    <div class="stat-label">Average Score</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="fas fa-trophy"></i></div>
+                    <div class="stat-value">{{ overall['best_score'] }}%</div>
+                    <div class="stat-label">Best Score</div>
+                </div>
+            </div>
+
+            <!-- Course-wise Performance -->
+            {% if course_stats %}
+            <div class="table-header mt-6">
+                <h2><i class="fas fa-chart-pie" style="color: var(--accent);"></i> Course-wise Breakdown</h2>
+            </div>
+            <div class="results-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th>Exams Taken</th>
+                            <th>Average</th>
+                            <th>Best</th>
+                            <th>Worst</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cs in course_stats %}
+                        <tr>
+                            <td><span class="badge badge-dept">{{ cs['department'] }}</span></td>
+                            <td>{{ cs['exams_taken'] }}</td>
+                            <td><span class="grade-badge {{ cs['avg_score']|grade_color }}">{{ cs['avg_score']
+                                    }}%</span></td>
+                            <td>{{ cs['best_score'] }}%</td>
+                            <td>{{ cs['worst_score'] }}%</td>
+                            <td>
+                                {% if cs['avg_score'] >= 60 %}
+                                <span class="badge badge-active">Excellent</span>
+                                {% elif cs['avg_score'] >= 40 %}
+                                <span class="badge"
+                                    style="background: var(--warning-light); color: var(--warning);">Passing</span>
+                                {% else %}
+                                <span class="badge badge-inactive">At Risk</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+
+            <!-- All Results -->
+            <div class="table-header mt-6">
+                <h2><i class="fas fa-list" style="color: var(--accent);"></i> All Exam Results</h2>
+            </div>
+            {% if all_results %}
+            <div class="results-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Exam</th>
+                            <th>Department</th>
+                            <th>Score</th>
+                            <th>Percentage</th>
+                            <th>Time Taken</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in all_results %}
+                        <tr>
+                            <td><strong>{{ r['exam_title'] }}</strong></td>
+                            <td><span class="badge badge-dept">{{ r['department'] }}</span></td>
+                            <td>{{ r['score'] }}/{{ r['total_marks'] }}</td>
+                            <td><span class="grade-badge {{ r['percentage']|grade_color }}">{{ r['percentage']
+                                    }}%</span></td>
+                            <td>{{ r['time_taken_seconds']|format_time }}</td>
+                            <td>{{ r['submitted_at'][:10] if r['submitted_at'] else 'N/A' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h3>No Exam Results</h3>
+                <p>This student has not completed any exams yet.</p>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#2563eb" />
+    <meta name="description" content="Digital Quiz Tool - Online examination portal" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <title>Digital Quiz Tool</title>
+    
+    <!-- Preconnect to API -->
+    <link rel="preconnect" href="https://exam-portal-api.onrender.com" />
+    
+    <!-- Mobile optimizations -->
+    <style>
+      /* Prevent text size adjustment on orientation change */
+      html {
+        -webkit-text-size-adjust: 100%;
+      }
+      
+      /* Smooth scrolling */
+      html {
+        scroll-behavior: smooth;
+      }
+      
+      /* iOS touch callout */
+      * {
+        -webkit-touch-callout: none;
+      }
+      
+      /* Selection color */
+      ::selection {
+        background-color: #2563eb;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- No-JS fallback -->
+    <noscript>
+      <div style="padding: 20px; text-align: center; font-family: sans-serif;">
+        <h1>JavaScript Required</h1>
+        <p>Please enable JavaScript to use Digital Quiz Tool.</p>
+      </div>
+    </noscript>
+  </body>
+</html>

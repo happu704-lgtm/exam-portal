@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Study Materials - Admin{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Admin Panel</h2>
+            <p>Management Console</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin.dashboard') }}" class="nav-link"><i class="fas fa-tachometer-alt"></i>
+                Dashboard</a>
+            <a href="{{ url_for('admin.exams') }}" class="nav-link"><i class="fas fa-file-alt"></i> Exams</a>
+            <a href="{{ url_for('admin.students') }}" class="nav-link"><i class="fas fa-users"></i> Students</a>
+            <a href="{{ url_for('admin.reports') }}" class="nav-link"><i class="fas fa-chart-pie"></i> Reports</a>
+            <a href="{{ url_for('admin.study_materials') }}" class="nav-link active"><i class="fas fa-book-open"></i>
+                Study Materials</a>
+        </nav>
+        <div class="sidebar-user">
+            <div class="user-avatar" style="background: linear-gradient(135deg, #dc2626, #991b1b);">{{
+                current_user.full_name[:2]|upper }}</div>
+            <div class="user-info">
+                <h4>{{ current_user.full_name }}</h4>
+                <p>Administrator</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topnav">
+            <div class="flex items-center gap-3">
+                <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                <span class="topnav-brand">Digital Quiz Tool</span>
+            </div>
+            <div class="topnav-links">
+                <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('admin.exams') }}">Exams</a>
+                <a href="{{ url_for('admin.students') }}">Students</a>
+                <a href="{{ url_for('admin.reports') }}">Reports</a>
+                <a href="{{ url_for('admin.study_materials') }}" class="active">Materials</a>
+            </div>
+            <div class="topnav-actions">
+                <a href="{{ url_for('auth.logout') }}" class="icon-btn" title="Logout"><i
+                        class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="table-header">
+                <div class="page-header">
+                    <h1>Study Materials Management</h1>
+                    <p>Add, edit, and manage study materials for all courses. These are accessible by all students.</p>
+                </div>
+                <a href="{{ url_for('admin.add_material') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Material
+                </a>
+            </div>
+
+            {% if materials %}
+            <div class="results-table-container mt-6">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Course</th>
+                            <th>Type</th>
+                            <th>Added By</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for m in materials %}
+                        <tr>
+                            <td><strong>{{ m['title'] }}</strong></td>
+                            <td><span class="badge badge-dept">{{ m['course'] }}</span></td>
+                            <td>{{ m['material_type']|capitalize }}</td>
+                            <td>{{ m['author_name'] or 'Unknown' }}</td>
+                            <td>{{ m['created_at'][:10] if m['created_at'] else '' }}</td>
+                            <td>
+                                <div class="flex gap-2">
+                                    <a href="{{ url_for('admin.edit_material', material_id=m['id']) }}"
+                                        class="btn btn-sm btn-outline" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form method="POST"
+                                        action="{{ url_for('admin.delete_material', material_id=m['id']) }}"
+                                        style="display:inline" onsubmit="return confirm('Delete this material?')">
+                                        <button class="btn btn-sm btn-danger" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state mt-6">
+                <i class="fas fa-book"></i>
+                <h3>No Study Materials</h3>
+                <p>Add study materials for students to access across courses.</p>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+{% endblock %}

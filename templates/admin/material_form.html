@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}{% if material %}Edit Material{% else %}Add Material{% endif %} - Admin{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Admin Panel</h2>
+            <p>Management Console</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin.dashboard') }}" class="nav-link"><i class="fas fa-tachometer-alt"></i>
+                Dashboard</a>
+            <a href="{{ url_for('admin.exams') }}" class="nav-link"><i class="fas fa-file-alt"></i> Exams</a>
+            <a href="{{ url_for('admin.students') }}" class="nav-link"><i class="fas fa-users"></i> Students</a>
+            <a href="{{ url_for('admin.reports') }}" class="nav-link"><i class="fas fa-chart-pie"></i> Reports</a>
+            <a href="{{ url_for('admin.study_materials') }}" class="nav-link active"><i class="fas fa-book-open"></i>
+                Study Materials</a>
+        </nav>
+        <div class="sidebar-user">
+            <div class="user-avatar" style="background: linear-gradient(135deg, #dc2626, #991b1b);">{{
+                current_user.full_name[:2]|upper }}</div>
+            <div class="user-info">
+                <h4>{{ current_user.full_name }}</h4>
+                <p>Administrator</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topnav">
+            <div class="flex items-center gap-3">
+                <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                <span class="topnav-brand">Digital Quiz Tool</span>
+            </div>
+            <div class="topnav-links">
+                <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('admin.exams') }}">Exams</a>
+                <a href="{{ url_for('admin.study_materials') }}" class="active">Materials</a>
+            </div>
+            <div class="topnav-actions">
+                <a href="{{ url_for('auth.logout') }}" class="icon-btn" title="Logout"><i
+                        class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="page-header">
+                <h1>{% if material %}Edit Study Material{% else %}Add Study Material{% endif %}</h1>
+                <p>{% if material %}Update material details.{% else %}Add new study material for students.{% endif %}
+                </p>
+            </div>
+
+            <div class="form-card mt-6">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="title">Title</label>
+                            <input type="text" id="title" name="title" class="form-input"
+                                value="{{ material['title'] if material else '' }}" required
+                                placeholder="e.g. Introduction to Quantum Mechanics">
+                        </div>
+                        <div class="form-group">
+                            <label for="course">Course / Department</label>
+                            <input type="text" id="course" name="course" class="form-input"
+                                value="{{ material['course'] if material else '' }}" required
+                                placeholder="e.g. SCIENCE DEPARTMENT">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description"
+                            placeholder="Short description of this material...">{{ material['description'] if material else '' }}</textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="material_type">Material Type</label>
+                            <select id="material_type" name="material_type">
+                                <option value="document" {% if material and material['material_type']=='document'
+                                    %}selected{% endif %}>Document</option>
+                                <option value="notes" {% if material and material['material_type']=='notes' %}selected{%
+                                    endif %}>Notes</option>
+                                <option value="video" {% if material and material['material_type']=='video' %}selected{%
+                                    endif %}>Video</option>
+                                <option value="presentation" {% if material and
+                                    material['material_type']=='presentation' %}selected{% endif %}>Presentation
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="file_url">Resource URL (optional)</label>
+                            <input type="text" id="file_url" name="file_url" class="form-input"
+                                value="{{ material['file_url'] if material else '' }}"
+                                placeholder="https://example.com/resource.pdf">
+                        </div>
+                        <div class="form-group">
+                            <label for="file_upload">Or Upload a File</label>
+                            <input type="file" id="file_upload" name="file_upload" class="form-input"
+                                accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.mp4,.mp3">
+                            <small style="color: var(--text-secondary); margin-top: 4px; display: block;">
+                                Allowed: PDF, DOC, DOCX, PPT, PPTX, TXT, Images, MP4, MP3 (Max 10MB)
+                            </small>
+                            {% if material and material['file_url'] %}
+                            <div style="margin-top: 8px; padding: 8px; background: var(--bg-secondary); border-radius: 6px;">
+                                <i class="fas fa-paperclip"></i> Current file: {{ material['file_url'].split('/')[-1] }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="content">Content (full text)</label>
+                        <textarea id="content" name="content" style="min-height: 250px;"
+                            placeholder="Write or paste the full study material content here...">{{ material['content'] if material else '' }}</textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save"></i> {% if material %}Update Material{% else %}Add Material{% endif
+                            %}
+                        </button>
+                        <a href="{{ url_for('admin.study_materials') }}" class="btn btn-outline btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - Digital Quiz Tool{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Admin Panel</h2>
+            <p>Management Console</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin.dashboard') }}" class="nav-link active">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="{{ url_for('admin.exams') }}" class="nav-link">
+                <i class="fas fa-file-alt"></i> Exams
+            </a>
+            <a href="{{ url_for('admin.students') }}" class="nav-link">
+                <i class="fas fa-users"></i> Students
+            </a>
+            <a href="{{ url_for('admin.reports') }}" class="nav-link">
+                <i class="fas fa-chart-pie"></i> Reports
+            </a>
+            <a href="{{ url_for('admin.study_materials') }}" class="nav-link">
+                <i class="fas fa-book-open"></i> Study Materials
+            </a>
+        </nav>
+        <div class="sidebar-user">
+            <div class="user-avatar" style="background: linear-gradient(135deg, #dc2626, #991b1b);">{{
+                current_user.full_name[:2]|upper }}</div>
+            <div class="user-info">
+                <h4>{{ current_user.full_name }}</h4>
+                <p>Administrator</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topnav">
+            <div class="flex items-center gap-3">
+                <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                <span class="topnav-brand">Digital Quiz Tool</span>
+            </div>
+            <div class="topnav-links">
+                <a href="{{ url_for('admin.dashboard') }}" class="active">Dashboard</a>
+                <a href="{{ url_for('admin.exams') }}">Exams</a>
+                <a href="{{ url_for('admin.students') }}">Students</a>
+                <a href="{{ url_for('admin.reports') }}">Reports</a>
+                <a href="{{ url_for('admin.study_materials') }}">Materials</a>
+            </div>
+            <div class="topnav-actions">
+                <a href="{{ url_for('auth.logout') }}" class="icon-btn" title="Logout"><i
+                        class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="page-header">
+                <h1>Admin Dashboard</h1>
+                <p>Overview of your examination system. Manage exams, students, and view analytics.</p>
+            </div>
+
+            <!-- Share Application Link -->
+            <div class="share-link-section" style="background: linear-gradient(135deg, #1e293b, #334155); color: white; padding: 24px; border-radius: 12px; margin-top: 24px;">
+                <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                    <div style="flex: 1;">
+                        <h3 style="font-size: 18px; margin-bottom: 8px; color: #fff;"><i class="fas fa-share-alt"></i> Share Application</h3>
+                        <p style="color: #94a3b8; font-size: 14px; margin-bottom: 12px;">Generate a shareable link to share with students</p>
+                        
+                        <!-- Generate Link Button -->
+                        <div style="margin-bottom: 16px;">
+                            <button onclick="generateShareLink()" id="generateBtn" style="
+                                display: inline-block;
+                                background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                                color: white;
+                                padding: 12px 24px;
+                                border-radius: 8px;
+                                border: none;
+                                font-weight: 600;
+                                font-size: 16px;
+                                cursor: pointer;
+                                box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+                                transition: all 0.3s;
+                            ">
+                                <i class="fas fa-magic"></i> Generate Shareable Link
+                            </button>
+                        </div>
+                        
+                        <!-- Generated Link Display (Hidden by default) -->
+                        <div id="linkDisplay" style="display: none; margin-bottom: 16px; padding: 16px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                            <p style="color: #94a3b8; font-size: 12px; margin-bottom: 8px;">Your shareable link (valid for 30 days):</p>
+                            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                                <a id="shareableLink" href="#" target="_blank" style="
+                                    flex: 1;
+                                    background: rgba(16, 185, 129, 0.2);
+                                    color: #34d399;
+                                    padding: 10px 16px;
+                                    border-radius: 6px;
+                                    text-decoration: none;
+                                    font-family: monospace;
+                                    font-size: 14px;
+                                    word-break: break-all;
+                                    border: 1px solid rgba(16, 185, 129, 0.3);
+                                ">
+                                    <!-- Link will be inserted here -->
+                                </a>
+                            </div>
+                            <div style="display: flex; gap: 12px; margin-top: 12px;">
+                                <button onclick="copyGeneratedLink()" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-copy"></i> Copy
+                                </button>
+                                <a id="whatsappShare" href="#" target="_blank" style="background: linear-gradient(135deg, #25d366, #128c7e); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 8px; text-decoration: none;">
+                                    <i class="fab fa-whatsapp"></i> WhatsApp
+                                </a>
+                                <button onclick="openLink()" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-external-link-alt"></i> Open
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid mt-6">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+                    <div class="stat-value">{{ stats.total_students }}</div>
+                    <div class="stat-label">Total Students</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-file-alt"></i></div>
+                    <div class="stat-value">{{ stats.active_exams }}</div>
+                    <div class="stat-label">Active Exams</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="fas fa-clipboard-check"></i></div>
+                    <div class="stat-value">{{ stats.total_results }}</div>
+                    <div class="stat-label">Exams Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-percentage"></i></div>
+                    <div class="stat-value">{{ stats.avg_score }}%</div>
+                    <div class="stat-label">Average Score</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-question-circle"></i></div>
+                    <div class="stat-value">{{ stats.total_questions }}</div>
+                    <div class="stat-label">Total Questions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red"><i class="fas fa-book"></i></div>
+                    <div class="stat-value">{{ stats.total_exams }}</div>
+                    <div class="stat-label">Total Exams</div>
+                </div>
+            </div>
+
+            <!-- Recent Results -->
+            <div class="results-table-container">
+                <div class="table-header">
+                    <h2>Recent Submissions</h2>
+                    <a href="{{ url_for('admin.reports') }}" class="btn btn-sm btn-outline">View All Reports</a>
+                </div>
+                {% if recent_results %}
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Exam</th>
+                            <th>Score</th>
+                            <th>Percentage</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in recent_results %}
+                        <tr>
+                            <td><strong>{{ r['full_name'] }}</strong></td>
+                            <td>{{ r['exam_title'] }}</td>
+                            <td>{{ r['score'] }}/{{ r['total_marks'] }}</td>
+                            <td><span class="grade-badge {{ r['percentage']|grade_color }}">{{ r['percentage']
+                                    }}%</span></td>
+                            <td>{{ r['submitted_at'][:10] if r['submitted_at'] else 'N/A' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h3>No Submissions Yet</h3>
+                    <p>No exams have been submitted yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let currentShareLink = '';
+
+    async function generateShareLink() {
+        const generateBtn = document.getElementById('generateBtn');
+        const linkDisplay = document.getElementById('linkDisplay');
+        const shareableLink = document.getElementById('shareableLink');
+        const whatsappShare = document.getElementById('whatsappShare');
+        
+        // Show loading state
+        generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        generateBtn.disabled = true;
+        
+        try {
+            // Call API to generate shareable link
+            const response = await fetch('/admin/api/generate-share-link');
+            const data = await response.json();
+            
+            if (data.success) {
+                currentShareLink = data.share_url;
+                
+                // Display the link
+                shareableLink.href = currentShareLink;
+                shareableLink.textContent = currentShareLink;
+                
+                // Update WhatsApp share link
+                const whatsappText = `Join Digital Quiz Tool for online exams! Link: ${currentShareLink}`;
+                whatsappShare.href = `https://wa.me/?text=${encodeURIComponent(whatsappText)}`;
+                
+                // Show the link display section
+                linkDisplay.style.display = 'block';
+                
+                // Reset button
+                generateBtn.innerHTML = '<i class="fas fa-check"></i> Link Generated!';
+                setTimeout(() => {
+                    generateBtn.innerHTML = '<i class="fas fa-magic"></i> Generate New Link';
+                    generateBtn.disabled = false;
+                }, 2000);
+            } else {
+                alert('Failed to generate link. Please try again.');
+                generateBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Shareable Link';
+                generateBtn.disabled = false;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error generating link. Please try again.');
+            generateBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Shareable Link';
+            generateBtn.disabled = false;
+        }
+    }
+
+    function copyGeneratedLink() {
+        if (!currentShareLink) return;
+        
+        navigator.clipboard.writeText(currentShareLink).then(() => {
+            alert('Link copied to clipboard! You can now share it with students.');
+        }).catch(err => {
+            const textArea = document.createElement("textarea");
+            textArea.value = currentShareLink;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert('Link copied to clipboard! You can now share it with students.');
+        });
+    }
+
+    function openLink() {
+        if (!currentShareLink) return;
+        window.open(currentShareLink, '_blank');
+    }
+</script>
+{% endblock %}

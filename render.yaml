@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: exam-portal-api
+    runtime: python
+    plan: free
+    region: oregon
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 60 --keep-alive 5 --max-requests 100"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
+      - key: SECRET_KEY
+        generateValue: true
+      - key: FLASK_ENV
+        value: production
+      - key: FRONTEND_URL
+        value: https://exam-portal.vercel.app
+      - key: APP_URL
+        value: https://exam-portal-api.onrender.com
+      - key: DATABASE_URL
+        value: sqlite:///exam_portal.db
+    healthCheckPath: /
+    autoDeploy: true
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1

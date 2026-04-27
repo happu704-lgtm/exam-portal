@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Students - Admin{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Admin Panel</h2>
+            <p>Management Console</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin.dashboard') }}" class="nav-link"><i class="fas fa-tachometer-alt"></i>
+                Dashboard</a>
+            <a href="{{ url_for('admin.exams') }}" class="nav-link"><i class="fas fa-file-alt"></i> Exams</a>
+            <a href="{{ url_for('admin.students') }}" class="nav-link active"><i class="fas fa-users"></i> Students</a>
+            <a href="{{ url_for('admin.reports') }}" class="nav-link"><i class="fas fa-chart-pie"></i> Reports</a>
+            <a href="{{ url_for('admin.study_materials') }}" class="nav-link"><i class="fas fa-book-open"></i> Study
+                Materials</a>
+        </nav>
+        <div class="sidebar-user">
+            <div class="user-avatar" style="background: linear-gradient(135deg, #dc2626, #991b1b);">{{
+                current_user.full_name[:2]|upper }}</div>
+            <div class="user-info">
+                <h4>{{ current_user.full_name }}</h4>
+                <p>Administrator</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topnav">
+            <div class="flex items-center gap-3">
+                <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                <span class="topnav-brand">Digital Quiz Tool</span>
+            </div>
+            <div class="topnav-links">
+                <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('admin.exams') }}">Exams</a>
+                <a href="{{ url_for('admin.students') }}" class="active">Students</a>
+                <a href="{{ url_for('admin.reports') }}">Reports</a>
+                <a href="{{ url_for('admin.study_materials') }}">Materials</a>
+            </div>
+            <div class="topnav-actions">
+                <a href="{{ url_for('auth.logout') }}" class="icon-btn" title="Logout"><i
+                        class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="page-header">
+                <h1>Student Management</h1>
+                <p>View all registered students and their performance.</p>
+            </div>
+
+            {% if students %}
+            <div class="results-table-container mt-6">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Username</th>
+                            <th>Student ID</th>
+                            <th>Email</th>
+                            <th>Exams Taken</th>
+                            <th>Avg Score</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in students %}
+                        <tr>
+                            <td>
+                                <div class="flex items-center gap-3">
+                                    <div class="user-avatar"
+                                        style="width:32px;height:32px;font-size:11px;border-radius:8px;">{{
+                                        s['full_name'][:2]|upper }}</div>
+                                    <strong>{{ s['full_name'] }}</strong>
+                                </div>
+                            </td>
+                            <td>{{ s['username'] }}</td>
+                            <td>{{ s['student_id'] or 'N/A' }}</td>
+                            <td>{{ s['email'] or 'N/A' }}</td>
+                            <td>{{ s['exams_taken'] }}</td>
+                            <td>
+                                <span class="grade-badge {{ s['avg_score']|grade_color }}">
+                                    {{ s['avg_score'] }}%
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('admin.student_performance', student_id=s['id']) }}"
+                                    class="btn btn-sm btn-outline" title="View Performance">
+                                    <i class="fas fa-chart-line"></i> Analyze
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state mt-6">
+                <i class="fas fa-users"></i>
+                <h3>No Students Registered</h3>
+                <p>No students have registered yet.</p>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+{% endblock %}

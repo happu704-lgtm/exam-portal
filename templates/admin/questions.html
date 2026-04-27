@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block title %}Questions: {{ exam['title'] }} - Admin{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Admin Panel</h2>
+            <p>Management Console</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin.dashboard') }}" class="nav-link"><i class="fas fa-tachometer-alt"></i>
+                Dashboard</a>
+            <a href="{{ url_for('admin.exams') }}" class="nav-link active"><i class="fas fa-file-alt"></i> Exams</a>
+            <a href="{{ url_for('admin.students') }}" class="nav-link"><i class="fas fa-users"></i> Students</a>
+            <a href="{{ url_for('admin.reports') }}" class="nav-link"><i class="fas fa-chart-pie"></i> Reports</a>
+        </nav>
+        <div class="sidebar-user">
+            <div class="user-avatar" style="background: linear-gradient(135deg, #dc2626, #991b1b);">{{
+                current_user.full_name[:2]|upper }}</div>
+            <div class="user-info">
+                <h4>{{ current_user.full_name }}</h4>
+                <p>Administrator</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topnav">
+            <div class="flex items-center gap-3">
+                <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                <span class="topnav-brand">Digital Quiz Tool</span>
+            </div>
+            <div class="topnav-links">
+                <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('admin.exams') }}" class="active">Exams</a>
+                <a href="{{ url_for('admin.students') }}">Students</a>
+                <a href="{{ url_for('admin.reports') }}">Reports</a>
+            </div>
+            <div class="topnav-actions">
+                <a href="{{ url_for('auth.logout') }}" class="icon-btn" title="Logout"><i
+                        class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="table-header">
+                <div class="page-header">
+                    <h1>{{ exam['title'] }}</h1>
+                    <p>Manage questions for this exam. {{ questions|length }} question(s) added.</p>
+                </div>
+                <a href="{{ url_for('admin.exams') }}" class="btn btn-outline btn-sm">
+                    <i class="fas fa-arrow-left"></i> Back to Exams
+                </a>
+            </div>
+
+            <!-- Add Question Form -->
+            <div class="form-card mt-6">
+                <h2><i class="fas fa-plus-circle"></i> Add New Question</h2>
+                <form method="POST">
+                    <div class="form-group">
+                        <label for="question_text">Question Text</label>
+                        <textarea id="question_text" name="question_text" required
+                            placeholder="Enter the question..."></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="option_a">Option A</label>
+                            <input type="text" id="option_a" name="option_a" class="form-input" required
+                                placeholder="First option">
+                        </div>
+                        <div class="form-group">
+                            <label for="option_b">Option B</label>
+                            <input type="text" id="option_b" name="option_b" class="form-input" required
+                                placeholder="Second option">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="option_c">Option C</label>
+                            <input type="text" id="option_c" name="option_c" class="form-input" required
+                                placeholder="Third option">
+                        </div>
+                        <div class="form-group">
+                            <label for="option_d">Option D</label>
+                            <input type="text" id="option_d" name="option_d" class="form-input" required
+                                placeholder="Fourth option">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="correct_option">Correct Answer</label>
+                            <select id="correct_option" name="correct_option" required>
+                                <option value="">Select correct option</option>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="marks">Marks</label>
+                            <input type="number" id="marks" name="marks" class="form-input" value="2" min="1" required>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-plus"></i> Add Question
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Existing Questions -->
+            {% if questions %}
+            <div class="table-header mt-6">
+                <h2>Existing Questions ({{ questions|length }})</h2>
+            </div>
+            <div class="questions-list">
+                {% for q in questions %}
+                <div class="question-item">
+                    <div class="q-number">{{ loop.index }}</div>
+                    <div class="q-content">
+                        <p><strong>{{ q['question_text'] }}</strong></p>
+                        <div class="q-options">
+                            <span class="{% if q['correct_option'] == 'A' %}correct{% endif %}">A: {{ q['option_a']
+                                }}</span>
+                            <span class="{% if q['correct_option'] == 'B' %}correct{% endif %}">B: {{ q['option_b']
+                                }}</span>
+                            <span class="{% if q['correct_option'] == 'C' %}correct{% endif %}">C: {{ q['option_c']
+                                }}</span>
+                            <span class="{% if q['correct_option'] == 'D' %}correct{% endif %}">D: {{ q['option_d']
+                                }}</span>
+                        </div>
+                        <div style="margin-top: 6px; font-size: 12px; color: var(--text-light);">
+                            Correct: {{ q['correct_option'] }} | Marks: {{ q['marks'] }}
+                        </div>
+                    </div>
+                    <div class="q-actions">
+                        <form method="POST" action="{{ url_for('admin.delete_question', question_id=q['id']) }}"
+                            onsubmit="return confirm('Delete this question?')">
+                            <button class="btn btn-sm btn-danger" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+{% endblock %}

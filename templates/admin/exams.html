@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Manage Exams - Admin{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Admin Panel</h2>
+            <p>Management Console</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin.dashboard') }}" class="nav-link"><i class="fas fa-tachometer-alt"></i>
+                Dashboard</a>
+            <a href="{{ url_for('admin.exams') }}" class="nav-link active"><i class="fas fa-file-alt"></i> Exams</a>
+            <a href="{{ url_for('admin.students') }}" class="nav-link"><i class="fas fa-users"></i> Students</a>
+            <a href="{{ url_for('admin.reports') }}" class="nav-link"><i class="fas fa-chart-pie"></i> Reports</a>
+        </nav>
+        <div class="sidebar-user">
+            <div class="user-avatar" style="background: linear-gradient(135deg, #dc2626, #991b1b);">{{
+                current_user.full_name[:2]|upper }}</div>
+            <div class="user-info">
+                <h4>{{ current_user.full_name }}</h4>
+                <p>Administrator</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topnav">
+            <div class="flex items-center gap-3">
+                <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                <span class="topnav-brand">Digital Quiz Tool</span>
+            </div>
+            <div class="topnav-links">
+                <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('admin.exams') }}" class="active">Exams</a>
+                <a href="{{ url_for('admin.students') }}">Students</a>
+                <a href="{{ url_for('admin.reports') }}">Reports</a>
+            </div>
+            <div class="topnav-actions">
+                <a href="{{ url_for('auth.logout') }}" class="icon-btn" title="Logout"><i
+                        class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="table-header">
+                <div class="page-header">
+                    <h1>Manage Exams</h1>
+                    <p>Create, edit, and manage examinations.</p>
+                </div>
+                <a href="{{ url_for('admin.create_exam') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Create Exam
+                </a>
+            </div>
+
+            {% if exams %}
+            <div class="results-table-container mt-6">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Department</th>
+                            <th>Duration</th>
+                            <th>Questions</th>
+                            <th>Attempts</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for exam in exams %}
+                        <tr>
+                            <td><strong>{{ exam['title'] }}</strong></td>
+                            <td><span class="badge badge-dept">{{ exam['department'] }}</span></td>
+                            <td>{{ exam['duration_minutes'] }} min</td>
+                            <td>{{ exam['question_count'] }}</td>
+                            <td>{{ exam['attempt_count'] }}</td>
+                            <td>
+                                {% if exam['is_active'] %}
+                                <span class="badge badge-active">Active</span>
+                                {% else %}
+                                <span class="badge badge-inactive">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="flex gap-2">
+                                    <a href="{{ url_for('admin.manage_questions', exam_id=exam['id']) }}"
+                                        class="btn btn-sm btn-outline" title="Questions">
+                                        <i class="fas fa-list"></i>
+                                    </a>
+                                    <a href="{{ url_for('admin.edit_exam', exam_id=exam['id']) }}"
+                                        class="btn btn-sm btn-outline" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form method="POST" action="{{ url_for('admin.toggle_exam', exam_id=exam['id']) }}"
+                                        style="display:inline">
+                                        <button class="btn btn-sm btn-outline" title="Toggle Status">
+                                            <i class="fas fa-power-off"></i>
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('admin.delete_exam', exam_id=exam['id']) }}"
+                                        style="display:inline"
+                                        onsubmit="return confirm('Delete this exam? This cannot be undone.')">
+                                        <button class="btn btn-sm btn-danger" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state mt-6">
+                <i class="fas fa-file-alt"></i>
+                <h3>No Exams Created</h3>
+                <p>Get started by creating your first exam.</p>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+{% endblock %}

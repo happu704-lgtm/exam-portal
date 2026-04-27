@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}My Results - Digital Quiz Tool{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Exam Portal</h2>
+            <p>Academic Authority</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('student.dashboard') }}" class="nav-link">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+            <a href="{{ url_for('student.dashboard') }}" class="nav-link">
+                <i class="fas fa-file-alt"></i> Active Exams
+            </a>
+            <a href="{{ url_for('student.results') }}" class="nav-link active">
+                <i class="fas fa-chart-bar"></i> Past Results
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fas fa-headset"></i> Support
+            </a>
+        </nav>
+        <div class="sidebar-user">
+            <div class="user-avatar">{{ current_user.full_name[:2]|upper }}</div>
+            <div class="user-info">
+                <h4>{{ current_user.full_name }}</h4>
+                <p>Student ID: {{ current_user.student_id }}</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topnav">
+            <div class="flex items-center gap-3">
+                <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                <span class="topnav-brand">Digital Quiz Tool</span>
+            </div>
+            <div class="topnav-links">
+                <a href="{{ url_for('student.dashboard') }}">Exams</a>
+                <a href="{{ url_for('student.results') }}" class="active">Results</a>
+            </div>
+            <div class="topnav-actions">
+                <a href="{{ url_for('auth.logout') }}" class="icon-btn" title="Logout"><i
+                        class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="page-header">
+                <h1>Past Results</h1>
+                <p>Review your examination performance history and detailed score breakdowns.</p>
+            </div>
+
+            {% if results %}
+            <div class="results-table-container mt-6">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Exam</th>
+                            <th>Department</th>
+                            <th>Score</th>
+                            <th>Percentage</th>
+                            <th>Time Taken</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in results %}
+                        <tr>
+                            <td><strong>{{ r['exam_title'] }}</strong></td>
+                            <td><span class="badge badge-dept">{{ r['department'] }}</span></td>
+                            <td>{{ r['score'] }} / {{ r['total_marks'] }}</td>
+                            <td>
+                                <span class="grade-badge {{ r['percentage']|grade_color }}">
+                                    {{ r['percentage'] }}%
+                                </span>
+                            </td>
+                            <td>{{ r['time_taken_seconds']|format_time }}</td>
+                            <td>{{ r['submitted_at'][:10] if r['submitted_at'] else 'N/A' }}</td>
+                            <td>
+                                <a href="{{ url_for('student.view_result', result_id=r['id']) }}"
+                                    class="btn btn-sm btn-outline">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state mt-6">
+                <i class="fas fa-clipboard-check"></i>
+                <h3>No Results Yet</h3>
+                <p>You haven't completed any exams yet. Start an exam from the dashboard to see your results here.</p>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+{% endblock %}

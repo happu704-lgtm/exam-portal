@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Digital Quiz Tool{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Exam Portal</h2>
+            <p>Academic Authority</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('student.dashboard') }}" class="nav-link active" id="navDashboard">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+            <a href="{{ url_for('student.dashboard') }}" class="nav-link" id="navExams">
+                <i class="fas fa-file-alt"></i> Active Exams
+            </a>
+            <a href="{{ url_for('student.results') }}" class="nav-link" id="navResults">
+                <i class="fas fa-chart-bar"></i> Past Results
+            </a>
+            <a href="{{ url_for('student.analytics') }}" class="nav-link" id="navAnalytics">
+                <i class="fas fa-chart-line"></i> My Analytics
+            </a>
+            <a href="{{ url_for('student.study_materials') }}" class="nav-link" id="navMaterials">
+                <i class="fas fa-book-open"></i> Study Materials
+            </a>
+            <a href="#support-section" class="nav-link" id="navSupport">
+                <i class="fas fa-headset"></i> Support
+            </a>
+        </nav>
+        <div class="sidebar-user">
+            <div class="user-avatar">{{ current_user.full_name[:2]|upper }}</div>
+            <div class="user-info">
+                <h4>{{ current_user.full_name }}</h4>
+                <p>Student ID: {{ current_user.student_id }}</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topnav">
+            <div class="flex items-center gap-3">
+                <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                <span class="topnav-brand">Digital Quiz Tool</span>
+            </div>
+            <div class="topnav-links">
+                <a href="{{ url_for('student.dashboard') }}" class="active">Exams</a>
+                <a href="{{ url_for('student.results') }}">Results</a>
+                <a href="{{ url_for('student.analytics') }}">Analytics</a>
+                <a href="{{ url_for('student.study_materials') }}">Study Materials</a>
+            </div>
+            <div class="topnav-actions">
+                <button class="icon-btn" title="Help"><i class="fas fa-question-circle"></i></button>
+                <a href="{{ url_for('auth.logout') }}" class="icon-btn" title="Logout"><i
+                        class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="page-header">
+                <h1>Assigned Examinations</h1>
+                <p>Welcome to your assessment sanctuary. Please review your scheduled examinations carefully. Ensure you
+                    are in a quiet environment before commencing.</p>
+            </div>
+
+            <!-- Search & Filter Bar -->
+            <div class="search-filter-bar">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="examSearch" placeholder="Search by course name or professor...">
+                </div>
+                <button class="filter-btn" data-filter="all">
+                    <i class="fas fa-sliders-h"></i> All
+                </button>
+                <button class="filter-btn" data-filter="science">
+                    <i class="fas fa-flask"></i> Science
+                </button>
+                <button class="filter-btn" data-filter="legal">
+                    <i class="fas fa-balance-scale"></i> Legal
+                </button>
+                <button class="filter-btn" data-filter="medicine">
+                    <i class="fas fa-heartbeat"></i> Medicine
+                </button>
+            </div>
+
+            <!-- Exam Cards Grid -->
+            <div class="exam-grid">
+                {% for exam in exams %}
+                <div class="exam-card" data-department="{{ exam['department']|lower }}">
+                    <div class="exam-card-image">
+                        {% set dept_lower = exam['department']|lower %}
+                        {% if 'science' in dept_lower %}
+                        <div class="placeholder-img physics"><i class="fas fa-atom"></i></div>
+                        {% elif 'legal' in dept_lower %}
+                        <div class="placeholder-img law"><i class="fas fa-balance-scale"></i></div>
+                        {% elif 'medicine' in dept_lower or 'neuro' in exam['title']|lower %}
+                        <div class="placeholder-img medicine"><i class="fas fa-brain"></i></div>
+                        {% elif 'computer' in dept_lower %}
+                        <div class="placeholder-img cs"><i class="fas fa-code"></i></div>
+                        {% elif 'chemistry' in dept_lower %}
+                        <div class="placeholder-img chemistry"><i class="fas fa-flask"></i></div>
+                        {% else %}
+                        <div class="placeholder-img default"><i class="fas fa-book"></i></div>
+                        {% endif %}
+                        <span class="exam-card-badge">{{ exam['department'] }}</span>
+                    </div>
+                    <div class="exam-card-body">
+                        <h3>{{ exam['title'] }}</h3>
+                        <div class="exam-meta">
+                            <div class="exam-meta-item">
+                                <i class="fas fa-clock"></i>
+                                <span>{{ exam['duration_minutes'] }} Minutes Duration</span>
+                            </div>
+                            <div class="exam-meta-item">
+                                <i class="fas fa-list-ol"></i>
+                                <span>{{ exam['question_count'] }} {{ exam['exam_type'] }} Questions</span>
+                            </div>
+                            {% if exam['notes'] %}
+                            <div class="exam-meta-item warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span>{{ exam['notes'] }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="exam-card-footer">
+                        {% if exam['id'] in taken_exam_ids %}
+                        <button class="btn-start completed" disabled>
+                            <i class="fas fa-check-circle"></i> Completed
+                        </button>
+                        {% else %}
+                        <a href="{{ url_for('student.start_exam', exam_id=exam['id']) }}" class="btn-start">
+                            Start Exam
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if not exams %}
+            <div class="empty-state">
+                <i class="fas fa-clipboard-list"></i>
+                <h3>No Exams Available</h3>
+                <p>There are currently no active examinations assigned to you. Check back later.</p>
+            </div>
+            {% endif %}
+
+            <!-- Support Section -->
+            <div class="support-section" id="support-section">
+                <div class="support-content">
+                    <h2>Need Help or Support?</h2>
+                    <p>If you experience technical difficulties during your examination or need assistance, 
+                        contact us directly via WhatsApp for immediate support.</p>
+                    <div class="support-buttons">
+                        <a href="https://wa.me/919148627299?text=Hello!%20I%20am%20using%20Digital%20Quiz%20Tool.%20%0A%0A*My%20Details:*%20%0A-%20Username:%20{{ current_user.username }}%20%0A-%20Student%20ID:%20{{ current_user.student_id or 'N/A' }}%20%0A%0A*About%20App:*%20%0ADigital%20Quiz%20Tool%20is%20an%20Online%20Examination%20Portal%20for%20students%20to%20take%20MCQ%20exams,%20view%20results%20and%20study%20materials.%20%0A%0A*My%20Issue:*%20[Please%20describe%20your%20issue%20here]" target="_blank" class="btn btn-primary">
+                            <i class="fab fa-whatsapp"></i> WhatsApp Support
+                        </a>
+                        <a href="tel:+919148627299" class="btn btn-outline">
+                            <i class="fas fa-phone"></i> Call Support
+                        </a>
+                    </div>
+                </div>
+                <div class="support-image">
+                    <div class="placeholder-img default"
+                        style="border-radius: var(--radius-md); background: linear-gradient(135deg, #1e293b, #334155);">
+                        <i class="fas fa-laptop" style="font-size: 64px;"></i>
+                    </div>
+                    <div class="support-status">
+                        <div class="label">Support Status</div>
+                        <div class="value">
+                            <span class="dot"></span>
+                            Online & Active
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
