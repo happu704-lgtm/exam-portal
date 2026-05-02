@@ -1,6 +1,8 @@
 import sqlite3
 import os
+from werkzeug.security import generate_password_hash
 
+# Database path (works on Render + local)
 DATABASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'exam_portal.db')
 
 
@@ -108,6 +110,20 @@ def init_db():
             FOREIGN KEY (created_by) REFERENCES users(id)
         );
     ''')
+
+    # ✅ Create Admin User
+    admin_password = generate_password_hash("admin123")
+    cursor.execute("""
+    INSERT OR IGNORE INTO users (username, password_hash, full_name, role)
+    VALUES (?, ?, ?, ?)
+    """, ("admin", admin_password, "Administrator", "admin"))
+
+    # ✅ Create Your User (Tulasi)
+    tulasi_password = generate_password_hash("tulasi@2005")
+    cursor.execute("""
+    INSERT OR IGNORE INTO users (username, password_hash, full_name, role)
+    VALUES (?, ?, ?, ?)
+    """, ("tulasi", tulasi_password, "Tulasi", "student"))
 
     conn.commit()
     conn.close()
