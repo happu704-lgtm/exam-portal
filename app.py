@@ -10,21 +10,15 @@ from admin import admin_bp
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'exam-portal-secret-key-2026')
+app.config['SESSION_COOKIE_SAMESITE'] = "None"
+app.config['SESSION_COOKIE_SECURE'] = True
 
 # Production domain configuration
 APP_URL = os.environ.get('APP_URL', '')  # e.g., https://myapp.com
-FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+FRONTEND_URL = "https://exam-portal-7r8m.onrender.com"
 
 # Enable CORS for frontend communication
-CORS(app, resources={
-    r"/api/*": {
-        "origins": [FRONTEND_URL, "https://*.vercel.app", "https://*.netlify.app"],
-        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
-        "supports_credentials": True
-    }
-})
-
+CORS(app, supports_credentials=True)
 # Initialize login manager
 login_manager.init_app(app)
 
